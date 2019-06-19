@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "mpi.h"
 #include <math.h>
+#include <time.h>
 
 int main(int argc, char* argv[])
 {
@@ -14,6 +15,8 @@ int main(int argc, char* argv[])
     double pi;                      //holds approx value of pi
     int reducedcount;                   //total number of "good" points from all nodes
     int reducedniter;                   //total number of ALL points from all nodes
+    void srand48(long int seedval);
+    
 
     MPI_Init(&argc, &argv);                 //Start MPI
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);           //get rank of node's process
@@ -23,8 +26,8 @@ int main(int argc, char* argv[])
     for (i=0; i<niter; ++i)                  //main loop
     {
         srand48(time(NULL)+myid);               //Give rand() a seed value unique on each node (times are synced)
-        x = (double)random()/RAND_MAX;          //gets a random x coordinate
-        y = (double)random()/RAND_MAX;          //gets a random y coordinate
+        x = (double)rand()/RAND_MAX;          //gets a random x coordinate
+        y = (double)rand()/RAND_MAX;          //gets a random y coordinate
         z = sqrt((x*x)+(y*y));              //Checks to see if number in inside unit circle
         if (z<=1)
         {
@@ -51,7 +54,7 @@ int main(int argc, char* argv[])
     if (myid == 0)                      //if root process
     {
         pi = ((double)reducedcount/(double)reducedniter)*4.0;               //p = 4(m/n)
-        printf("Pi: %f\n%i\n%d\n", pi, reducedcount, reducedniter);
+        printf("Pi: %f\nTotal number of 'good' points from all nodes: %i\nTotal number of ALL points from all nodes: %d\n", pi, reducedcount, reducedniter);
         //Print the calculated value of pi
 
     }
